@@ -2,67 +2,61 @@
 
 rec {
 
-  overrideCabal = drv: f: (drv.override (args: args // {
-    mkDerivation = drv: args.mkDerivation (drv // f drv);
-  })) // {
-    overrideScope = scope: overrideCabal (drv.overrideScope scope) f;
-  };
+  doHaddock = drv: drv.overrideAttrs (drv: { doHaddock = true; });
+  dontHaddock = drv: drv.overrideAttrs (drv: { doHaddock = false; });
 
-  doHaddock = drv: overrideCabal drv (drv: { doHaddock = true; });
-  dontHaddock = drv: overrideCabal drv (drv: { doHaddock = false; });
+  doJailbreak = drv: drv.overrideAttrs (drv: { jailbreak = true; });
+  dontJailbreak = drv: drv.overrideAttrs (drv: { jailbreak = false; });
 
-  doJailbreak = drv: overrideCabal drv (drv: { jailbreak = true; });
-  dontJailbreak = drv: overrideCabal drv (drv: { jailbreak = false; });
+  doCheck = drv: drv.overrideAttrs (drv: { doCheck = true; });
+  dontCheck = drv: drv.overrideAttrs (drv: { doCheck = false; });
 
-  doCheck = drv: overrideCabal drv (drv: { doCheck = true; });
-  dontCheck = drv: overrideCabal drv (drv: { doCheck = false; });
+  doDistribute = drv: drv.overrideAttrs (drv: { hydraPlatforms = drv.platforms or ["i686-linux" "x86_64-linux" "x86_64-darwin"]; });
+  dontDistribute = drv: drv.overrideAttrs (drv: { hydraPlatforms = []; });
 
-  doDistribute = drv: overrideCabal drv (drv: { hydraPlatforms = drv.platforms or ["i686-linux" "x86_64-linux" "x86_64-darwin"]; });
-  dontDistribute = drv: overrideCabal drv (drv: { hydraPlatforms = []; });
-
-  appendConfigureFlag = drv: x: overrideCabal drv (drv: { configureFlags = (drv.configureFlags or []) ++ [x]; });
-  removeConfigureFlag = drv: x: overrideCabal drv (drv: { configureFlags = pkgs.stdenv.lib.remove x (drv.configureFlags or []); });
+  appendConfigureFlag = drv: x: drv.overrideAttrs (drv: { configureFlags = (drv.configureFlags or []) ++ [x]; });
+  removeConfigureFlag = drv: x: drv.overrideAttrs (drv: { configureFlags = pkgs.stdenv.lib.remove x (drv.configureFlags or []); });
 
   addBuildTool = drv: x: addBuildTools drv [x];
-  addBuildTools = drv: xs: overrideCabal drv (drv: { buildTools = (drv.buildTools or []) ++ xs; });
+  addBuildTools = drv: xs: drv.overrideAttrs (drv: { buildTools = (drv.buildTools or []) ++ xs; });
 
   addExtraLibrary = drv: x: addExtraLibraries drv [x];
-  addExtraLibraries = drv: xs: overrideCabal drv (drv: { extraLibraries = (drv.extraLibraries or []) ++ xs; });
+  addExtraLibraries = drv: xs: drv.overrideAttrs (drv: { extraLibraries = (drv.extraLibraries or []) ++ xs; });
 
   addBuildDepend = drv: x: addBuildDepends drv [x];
-  addBuildDepends = drv: xs: overrideCabal drv (drv: { buildDepends = (drv.buildDepends or []) ++ xs; });
+  addBuildDepends = drv: xs: drv.overrideAttrs (drv: { buildDepends = (drv.buildDepends or []) ++ xs; });
 
   addPkgconfigDepend = drv: x: addPkgconfigDepends drv [x];
-  addPkgconfigDepends = drv: xs: overrideCabal drv (drv: { pkgconfigDepends = (drv.pkgconfigDepends or []) ++ xs; });
+  addPkgconfigDepends = drv: xs: drv.overrideAttrs (drv: { pkgconfigDepends = (drv.pkgconfigDepends or []) ++ xs; });
 
   enableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f-${x}") "-f${x}";
   disableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f${x}") "-f-${x}";
 
-  markBroken = drv: overrideCabal drv (drv: { broken = true; });
+  markBroken = drv: drv.overrideAttrs (drv: { broken = true; });
   markBrokenVersion = version: drv: assert drv.version == version; markBroken drv;
 
-  enableLibraryProfiling = drv: overrideCabal drv (drv: { enableLibraryProfiling = true; });
-  disableLibraryProfiling = drv: overrideCabal drv (drv: { enableLibraryProfiling = false; });
+  enableLibraryProfiling = drv: drv.overrideAttrs (drv: { enableLibraryProfiling = true; });
+  disableLibraryProfiling = drv: drv.overrideAttrs (drv: { enableLibraryProfiling = false; });
 
-  enableSharedExecutables = drv: overrideCabal drv (drv: { enableSharedExecutables = true; });
-  disableSharedExecutables = drv: overrideCabal drv (drv: { enableSharedExecutables = false; });
+  enableSharedExecutables = drv: drv.overrideAttrs (drv: { enableSharedExecutables = true; });
+  disableSharedExecutables = drv: drv.overrideAttrs (drv: { enableSharedExecutables = false; });
 
-  enableSharedLibraries = drv: overrideCabal drv (drv: { enableSharedLibraries = true; });
-  disableSharedLibraries = drv: overrideCabal drv (drv: { enableSharedLibraries = false; });
+  enableSharedLibraries = drv: drv.overrideAttrs (drv: { enableSharedLibraries = true; });
+  disableSharedLibraries = drv: drv.overrideAttrs (drv: { enableSharedLibraries = false; });
 
-  enableDeadCodeElimination = drv: overrideCabal drv (drv: { enableDeadCodeElimination = true; });
-  disableDeadCodeElimination = drv: overrideCabal drv (drv: { enableDeadCodeElimination = false; });
+  enableSplitObjs = drv: drv.overrideAttrs (drv: { enableSplitObjs = true; });
+  disableSplitObjs = drv: drv.overrideAttrs (drv: { enableSplitObjs = false; });
 
-  enableStaticLibraries = drv: overrideCabal drv (drv: { enableStaticLibraries = true; });
-  disableStaticLibraries = drv: overrideCabal drv (drv: { enableStaticLibraries = false; });
+  enableStaticLibraries = drv: drv.overrideAttrs (drv: { enableStaticLibraries = true; });
+  disableStaticLibraries = drv: drv.overrideAttrs (drv: { enableStaticLibraries = false; });
 
   appendPatch = drv: x: appendPatches drv [x];
-  appendPatches = drv: xs: overrideCabal drv (drv: { patches = (drv.patches or []) ++ xs; });
+  appendPatches = drv: xs: drv.overrideAttrs (drv: { patches = (drv.patches or []) ++ xs; });
 
-  doHyperlinkSource = drv: overrideCabal drv (drv: { hyperlinkSource = true; });
-  dontHyperlinkSource = drv: overrideCabal drv (drv: { hyperlinkSource = false; });
+  doHyperlinkSource = drv: drv.overrideAttrs (drv: { hyperlinkSource = true; });
+  dontHyperlinkSource = drv: drv.overrideAttrs (drv: { hyperlinkSource = false; });
 
-  disableHardening = drv: flags: overrideCabal drv (drv: { hardeningDisable = flags; });
+  disableHardening = drv: flags: drv.overrideAttrs (drv: { hardeningDisable = flags; });
 
   sdistTarball = pkg: pkgs.lib.overrideDerivation pkg (drv: {
     name = "${drv.pname}-source-${drv.version}";
@@ -85,6 +79,6 @@ rec {
 
   buildStackProject = pkgs.callPackage ./generic-stack-builder.nix { };
 
-  triggerRebuild = drv: i: overrideCabal drv (drv: { postUnpack = ": trigger rebuild ${toString i}"; });
+  triggerRebuild = drv: i: drv.overrideAttrs (drv: { postUnpack = ": trigger rebuild ${toString i}"; });
 
 }

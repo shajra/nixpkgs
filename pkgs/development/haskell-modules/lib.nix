@@ -2,8 +2,10 @@
 
 rec {
 
+  #overrideCabal = drv: f: drv.overrideAttrs f;
+
   overrideCabal = drv: f: (drv.override (args: args // {
-    mkDerivation = drv: args.mkDerivation (drv // f drv);
+    mkDerivation = drv: (args.mkDerivation drv).override f;
   })) // {
     overrideScope = scope: overrideCabal (drv.overrideScope scope) f;
   };
